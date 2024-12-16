@@ -1,0 +1,67 @@
+﻿@{
+    ViewData["Title"] = "Product Page";
+}
+
+@model List<Product>
+
+<div class="text-center">
+    <h1 class="display-4">Product</h1>
+    <br/>
+    <table class="table">
+        <thead>
+            <tr>
+                <th>
+                    ID
+                </th>
+                <th>
+                    Name
+                </th>
+                <th>
+                    Price
+                </th>
+                <th>
+                    Quantity
+                </th>
+                <th>
+                    ImageUrl
+                </th>
+                <th>
+                    Description
+                </th>
+                <th>
+                    Actions
+                </th>
+            </tr>
+        </thead>
+        <tbody>
+            @{
+                foreach (var pro in Model)
+                {
+                    <tr>
+                        <td>
+                            @pro.id
+                        </td>
+                        <td>
+                            @pro.name
+                        </td>
+                        <td>
+                            @pro.price
+                        </td>
+                        <td>
+                            @pro.quantity
+                        </td>
+                        <td>
+                            @pro.imageUrl
+                        </td>
+                        <td>
+                            @pro.description
+                        </td>
+                        <td>
+                            <a asp-action="DeleteProduct" asp-route-id="@pro.id">Delete</a>
+                        </td>
+                    </tr>
+                }
+            }
+        </tbody>
+    </table>
+</div>

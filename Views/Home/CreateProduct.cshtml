@@ -1,0 +1,32 @@
+﻿@{
+    ViewData["Title"] = "Create";
+}
+
+@model Product
+
+<div class="text-center">
+    <h1>Create Product</h1>
+    <form asp-action="CreateProduct" method="post">
+        <div class="form-group">
+            <label for="name">Name</label>
+            <input asp-for="name" class="form-control" />
+        </div>
+        <div class="form-group">
+            <label for="price">Price</label>
+            <input asp-for="price" class="form-control" />
+        </div>
+        <div class="form-group">
+            <label for="quantity">Quantity</label>
+            <input asp-for="quantity" class="form-control" />
+        </div>
+        <div class="form-group">
+            <label for="imageUrl">Image URL</label>
+            <input asp-for="imageUrl" class="form-control" />
+        </div>
+        <div class="form-group">
+            <label for="description">Description</label>
+            <textarea asp-for="description" class="form-control"></textarea>
+        </div>
+        <button type="submit" class="btn btn-success">Submit</button>
+    </form>
+</div>
