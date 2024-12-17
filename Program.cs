@@ -11,7 +11,8 @@ namespace Baitap
 
             // Add services to the container.
             builder.Services.AddControllersWithViews();
-            builder.Services.AddDbContext<ProductDB>(options => options.UseInMemoryDatabase("ProductDb"));
+
+            builder.Services.AddSignalR();
 
             var app = builder.Build();
 
@@ -22,13 +23,14 @@ namespace Baitap
                 // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
                 app.UseHsts();
             }
-
+            
             app.UseHttpsRedirection();
             app.UseStaticFiles();
 
             app.UseRouting();
 
             app.UseAuthorization();
+            app.MapHub<ProductHub>("/productHub");
 
             app.MapControllerRoute(
                 name: "default",

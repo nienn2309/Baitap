@@ -1,5 +1,6 @@
 using Baitap.Models;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.SignalR;
 using System.Diagnostics;
 using System.Text;
 using System.Text.Json;
@@ -9,13 +10,14 @@ namespace Baitap.Controllers
     public class HomeController : Controller
     {
         private readonly ILogger<HomeController> _logger;
+        private readonly IHubContext<ProductHub> _hubContext;
 
-        private readonly HttpClient _client;
         private const string BaseUrl = "https://simple-product-apis.vercel.app";
 
-        public HomeController(ILogger<HomeController> logger)
+        public HomeController(ILogger<HomeController> logger, IHubContext<ProductHub> hubContext)
         {
             _logger = logger;
+            _hubContext = hubContext;   
         }
 
         public IActionResult Index()
@@ -60,6 +62,11 @@ namespace Baitap.Controllers
                 HttpResponseMessage response = await client.PostAsync($"{BaseUrl}/products", content);
                 response.EnsureSuccessStatusCode();
 
+                string responseBody = await response.Content.ReadAsStringAsync();
+                var createdProduct = JsonSerializer.Deserialize<Product>(responseBody);
+
+                await _hubContext.Clients.All.SendAsync("ReceiveProductCreated", createdProduct);
+
                 return RedirectToAction("Product");
             }
             catch (Exception ex)
@@ -69,6 +76,7 @@ namespace Baitap.Controllers
             }
         }
 
+
         public async Task<IActionResult> DeleteProduct(string id)
         {
             try
@@ -76,6 +84,8 @@ namespace Baitap.Controllers
                 using var client = new HttpClient();
                 HttpResponseMessage response = await client.DeleteAsync($"{BaseUrl}/products/{id}");
                 response.EnsureSuccessStatusCode();
+
+                await _hubContext.Clients.All.SendAsync("ReceiveProductDeleted", id);
 
                 return RedirectToAction("Product");
             }

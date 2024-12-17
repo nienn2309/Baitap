@@ -6,56 +6,30 @@
 
 <div class="text-center">
     <h1 class="display-4">Product</h1>
-    <br/>
-    <table class="table">
+    <br />
+    <table class="table" id="productTable">
         <thead>
             <tr>
-                <th>
-                    ID
-                </th>
-                <th>
-                    Name
-                </th>
-                <th>
-                    Price
-                </th>
-                <th>
-                    Quantity
-                </th>
-                <th>
-                    ImageUrl
-                </th>
-                <th>
-                    Description
-                </th>
-                <th>
-                    Actions
-                </th>
+                <th>ID</th>
+                <th>Name</th>
+                <th>Price</th>
+                <th>Quantity</th>
+                <th>ImageUrl</th>
+                <th>Description</th>
+                <th>Actions</th>
             </tr>
         </thead>
-        <tbody>
+        <tbody id="productTableBody">
             @{
                 foreach (var pro in Model)
                 {
-                    <tr>
-                        <td>
-                            @pro.id
-                        </td>
-                        <td>
-                            @pro.name
-                        </td>
-                        <td>
-                            @pro.price
-                        </td>
-                        <td>
-                            @pro.quantity
-                        </td>
-                        <td>
-                            @pro.imageUrl
-                        </td>
-                        <td>
-                            @pro.description
-                        </td>
+                    <tr data-id="@pro.id">
+                        <td>@pro.id</td>
+                        <td>@pro.name</td>
+                        <td>@pro.price</td>
+                        <td>@pro.quantity</td>
+                        <td>@pro.imageUrl</td>
+                        <td>@pro.description</td>
                         <td>
                             <a asp-action="DeleteProduct" asp-route-id="@pro.id">Delete</a>
                         </td>
@@ -65,3 +39,44 @@
         </tbody>
     </table>
 </div>
+
+@section Scripts {
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/8.0.7/signalr.min.js"></script>
+    <script>
+        var connection = new signalR.HubConnectionBuilder()
+            .withUrl("/productHub")
+            .build();
+
+        connection.on("ReceiveProductCreated", function (product) {
+            var tableBody = document.getElementById("productTableBody");
+            var newRow = tableBody.insertRow();
+            newRow.setAttribute('data-id', product.id);
+            newRow.innerHTML = `
+                        <td>${product.id}</td>
+                        <td>${product.name}</td>
+                        <td>${product.price}</td>
+                        <td>${product.quantity}</td>
+                        <td>${product.imageUrl}</td>
+                        <td>${product.description}</td>
+                        <td>
+                            <a href="/Home/DeleteProduct?id=${product.id}">Delete</a>
+                        </td>
+                    `;
+        });
+
+        connection.on("ReceiveProductDeleted", function (productId) {
+            var rowToRemove = document.querySelector(`tr[data-id="${productId}"]`);
+            if (rowToRemove) {
+                rowToRemove.remove();
+            }
+        });
+
+        connection.start()
+            .then(function () {
+                console.log("SignalR Connected.");
+            })
+            .catch(function (err) {
+                return console.error(err.toString());
+            });
+    </script>
+}
